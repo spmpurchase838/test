@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>แบบทดสอบ: การรับวัตถุเข้าระบบและการตรวจบิลส่งของ</title>
+<style>
+  :root{
+    --ink:#1c2530;
+    --paper:#eef1ea;
+    --card:#ffffff;
+    --line:#d7dccf;
+    --accent:#3a5a40;
+    --accent-dark:#2c4530;
+    --stamp:#a4653a;
+    --muted:#6b7a6f;
+    --font-display: "Bahnschrift", "Sarabun", "Segoe UI", sans-serif;
+    --font-body: "Sarabun", "Segoe UI", sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:var(--font-body);
+    background:var(--paper);
+    color:var(--ink);
+    background-image:
+      linear-gradient(var(--paper) 0%, var(--paper) 100%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,0.015) 0px, rgba(0,0,0,0.015) 1px, transparent 1px, transparent 26px);
+  }
+  .sheet{
+    max-width:760px;
+    margin:0 auto;
+    padding:32px 20px 80px;
+  }
+  .letterhead{
+    border-bottom:3px double var(--ink);
+    padding-bottom:16px;
+    margin-bottom:28px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .letterhead .tag{
+    font-size:11px;
+    letter-spacing:0.12em;
+    color:var(--muted);
+    text-transform:uppercase;
+  }
+  .letterhead h1{
+    font-family:var(--font-display);
+    font-size:22px;
+    margin:4px 0 0;
+    line-height:1.3;
+  }
+  .stamp{
+    border:2px solid var(--stamp);
+    color:var(--stamp);
+    padding:6px 10px;
+    font-size:11px;
+    letter-spacing:0.08em;
+    transform:rotate(-3deg);
+    border-radius:3px;
+    white-space:nowrap;
+  }
+  .meta-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:18px 20px;
+    margin-bottom:24px;
+  }
+  .meta-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    margin-bottom:14px;
+  }
+  .meta-row:last-child{margin-bottom:0;}
+  .field label{
+    display:block;
+    font-size:12px;
+    color:var(--muted);
+    margin-bottom:5px;
+  }
+  .field input, .field select{
+    width:100%;
+    padding:9px 10px;
+    border:1px solid var(--line);
+    border-radius:4px;
+    font-family:var(--font-body);
+    font-size:14px;
+    background:#fbfbf8;
+  }
+  .field input:focus, .field select:focus, input[type=radio]:focus-visible + span{
+    outline:2px solid var(--accent);
+    outline-offset:1px;
+  }
+  .q-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:20px 22px;
+    margin-bottom:16px;
+    position:relative;
+  }
+  .q-num{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:26px;height:26px;
+    border-radius:50%;
+    background:var(--accent);
+    color:#fff;
+    font-size:13px;
+    font-weight:600;
+    margin-right:10px;
+    flex-shrink:0;
+  }
+  .q-head{
+    display:flex;
+    align-items:flex-start;
+    margin-bottom:14px;
+    font-size:15.5px;
+    line-height:1.55;
+    font-weight:600;
+  }
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-left:36px;
+  }
+  .opt{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    padding:9px 12px;
+    border:1px solid var(--line);
+    border-radius:5px;
+    cursor:pointer;
+    transition:background 0.15s, border-color 0.15s;
+    font-size:14.5px;
+    line-height:1.5;
+  }
+  .opt:hover{
+    background:#f4f6f1;
+    border-color:var(--accent);
+  }
+  .opt input{margin-top:3px;flex-shrink:0;}
+  .opt.checked{
+    background:#eef4ec;
+    border-color:var(--accent);
+  }
+  .progress-bar{
+    position:sticky;
+    top:0;
+    background:var(--paper);
+    padding:10px 0 14px;
+    z-index:5;
+  }
+  .progress-track{
+    height:6px;
+    background:var(--line);
+    border-radius:3px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--accent);
+    width:0%;
+    transition:width 0.25s ease;
+  }
+  .progress-label{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:6px;
+    text-align:right;
+  }
+  .submit-wrap{
+    text-align:center;
+    margin-top:28px;
+  }
+  #submitBtn{
+    background:var(--accent);
+    color:#fff;
+    border:none;
+    padding:13px 36px;
+    font-size:15px;
+    font-weight:600;
+    border-radius:5px;
+    cursor:pointer;
+    font-family:var(--font-body);
+    letter-spacing:0.02em;
+  }
+  #submitBtn:hover{background:var(--accent-dark);}
+  #submitBtn:disabled{background:#a9b4a5;cursor:not-allowed;}
+  .note{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:10px;
+  }
+  .result-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:36px 28px;
+    text-align:center;
+  }
+  .result-card .icon{
+    font-size:40px;
+    margin-bottom:10px;
+  }
+  .result-card h2{
+    font-family:var(--font-display);
+    margin:0 0 8px;
+    font-size:20px;
+  }
+  .result-card p{
+    color:var(--muted);
+    font-size:14px;
+    margin:0;
+  }
+  .error-banner{
+    background:#fdecea;
+    border:1px solid #e0958c;
+    color:#8a3323;
+    padding:10px 14px;
+    border-radius:5px;
+    font-size:13px;
+    margin-bottom:16px;
+    display:none;
+  }
+  .missing{
+    border-color:#c0524a !important;
+  }
+  @media (max-width:520px){
+    .meta-row{grid-template-columns:1fr;}
+    .options{margin-left:0;}
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="letterhead">
+    <div>
+      <div class="tag">SPM Feed Mill · แบบทดสอบภายใน</div>
+      <h1>การรับวัตถุเข้าระบบและการตรวจบิลส่งของ</h1>
+    </div>
+    <div class="stamp">10 ข้อ</div>
+  </div>
+
+  <div id="formView">
+
+    <div class="progress-bar">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-label" id="progressLabel">ตอบแล้ว 0 / 10 ข้อ</div>
+    </div>
+
+    <div class="error-banner" id="errorBanner">กรุณาตอบให้ครบทุกข้อก่อนส่งคำตอบ</div>
+
+    <div class="meta-card">
+      <div class="meta-row">
+        <div class="field">
+          <label for="empName">ชื่อ-นามสกุล</label>
+          <input type="text" id="empName" placeholder="เช่น สมชาย ใจดี" required>
+        </div>
+        <div class="field">
+          <label for="empDept">แผนก / ฝ่าย</label>
+          <input type="text" id="empDept" placeholder="เช่น คลังสินค้า / จัดซื้อ" required>
+        </div>
+      </div>
+    </div>
+
+    <div id="questions"></div>
+
+    <div class="submit-wrap">
+      <button id="submitBtn">ส่งคำตอบ</button>
+      <div class="note">ระบบจะบันทึกคำตอบของคุณเข้าฐานข้อมูลกลาง — ไม่มีการแสดงเฉลยในหน้านี้</div>
+    </div>
+
+  </div>
+
+  <div id="doneView" style="display:none;">
+    <div class="result-card">
+      <div class="icon">✅</div>
+      <h2>ส่งคำตอบเรียบร้อยแล้ว</h2>
+      <p>ขอบคุณที่ทำแบบทดสอบ ผลคะแนนจะถูกบันทึกไว้ในระบบ หากมีข้อสงสัยเกี่ยวกับเนื้อหา สามารถสอบถามหัวหน้างานได้</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ===== แก้ไข URL นี้เป็น Web App URL ของ Google Apps Script ที่ deploy แล้ว =====
+const SCRIPT_URL = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec";
+
+const QUESTIONS = [
+  {
+    q: "ขั้นตอนแรกที่สำคัญที่สุดในการตรวจบิลส่งของ (Delivery Bill) เมื่อสินค้ามาถึงคืออะไร",
+    opts: [
+      "ตรวจสอบความถูกต้องของชื่อบริษัท ที่อยู่ และเลขที่เอกสารให้ตรงกับใบสั่งซื้อ (PO)",
+      "เซ็นรับสินค้าทันทีเพื่อไม่ให้เสียเวลา",
+      "บันทึกรหัสแผนกเข้าสู่ระบบทันที",
+      "จัดเก็บสินค้าเข้าคลังทันที"
+    ]
+  },
+  {
+    q: "หากน้ำหนักที่ชั่งได้จริงที่ปลายทาง มีความแตกต่างจาก 'ใบชั่งน้ำหนักต้นทาง' เกินกว่าเกณฑ์มาตรฐานที่บริษัทกำหนด ควรปฏิบัติอย่างไร",
+    opts: [
+      "ทำเรื่องแจ้งปฏิเสธการรับสินค้าบางส่วน หรือทำใบกำกับยอดต่าง (Discrepancy Report) ตามขั้นตอนของบริษัท",
+      "ยึดตามน้ำหนักในเอกสารต้นทางเสมอเพื่อความรวดเร็ว",
+      "แก้ไขตัวเลขในใบชั่งน้ำหนักต้นทางด้วยปากกาให้ตรงกับที่ชั่งได้จริง",
+      "ปล่อยผ่านไปก่อนแล้วค่อยไปปรับยอดสต็อกตอนสิ้นปี"
+    ]
+  },
+  {
+    q: "ในการบันทึกการรับวัตถุเข้าระบบ 'รหัสที่ตั้ง' (Storage Location Code) มีความสำคัญอย่างไร",
+    opts: [
+      "บอกตำแหน่งที่จัดเก็บทางกายภาพภายในคลังสินค้า เพื่อให้ค้นหาและจัดการสต็อกได้ถูกต้อง",
+      "ระบุว่าใครเป็นคนสั่งซื้อสินค้านี้",
+      "ใช้ระบุราคาขายของวัตถุดิบชิ้นนั้น",
+      "ใช้ระบุชื่อผู้จัดจำหน่าย (Supplier)"
+    ]
+  },
+  {
+    q: "เหตุใดการระบุ 'รหัสแผนก' (Department/Cost Center Code) ให้ถูกต้องตอนรับวัตถุเข้าระบบจึงมีความสำคัญทางบัญชี",
+    opts: [
+      "เพื่อส่งผ่านและปันส่วนต้นทุน/ค่าใช้จ่ายไปยังหน่วยงานที่นำวัตถุดิบนั้นไปใช้ได้อย่างถูกต้อง",
+      "เพื่อระบุว่ารถขนส่งคันไหนเป็นคนนำสินค้ามาส่ง",
+      "เพื่อคำนวณภาษีมูลค่าเพิ่มของบิลใบนั้น",
+      "เพื่อเปลี่ยนชื่อผู้รับผิดชอบคลังสินค้าหลัก"
+    ]
+  },
+  {
+    q: "ข้อมูลใดบน 'ใบชั่งน้ำหนักต้นทาง' ที่ต้องนำมาเปรียบเทียบกับน้ำหนักชั่งรถเข้า-ออกที่โรงงานปลายทางเพื่อหาน้ำหนักสุทธิ (Net Weight) ของสินค้า",
+    opts: [
+      "น้ำหนักรวม (Gross Weight) และ น้ำหนักรถเปล่า (Tare Weight)",
+      "น้ำหนักคนขับรถและผู้โดยสาร",
+      "ราคาสินค้ารวมภาษีมูลค่าเพิ่ม",
+      "ความเร็วเฉลี่ยในการขับขี่ของรถขนส่ง"
+    ]
+  },
+  {
+    q: "ถ้าพนักงานบันทึก 'รหัสที่ตั้ง' (Storage Location) ในระบบผิดพลาด จะส่งผลกระทบโดยตรงอย่างไรต่อฝ่ายผลิตหรือฝ่ายจัดส่ง",
+    opts: [
+      "ระบบจะแสดงว่ามีสินค้า แต่เมื่อไปหาในคลังสินค้าตามพิกัดกลับไม่พบสินค้า ทำให้เกิดความล่าช้า",
+      "ราคาสินค้าในระบบจะเพิ่มขึ้นเป็นสองเท่าโดยอัตโนมัติ",
+      "ระบบจะยกเลิกใบสั่งซื้อนั้นทันที",
+      "ทำให้ชื่อผู้จัดจำหน่ายเปลี่ยนเป็นรายอื่น"
+    ]
+  },
+  {
+    q: "ข้อใดเป็นวิธีปฏิบัติที่ดีที่สุดเมื่อพบว่า 'ชื่อวัตถุดิบ' ในบิลส่งของไม่ตรงกับ 'ชื่อวัตถุดิบ' ในระบบรับเข้า แต่รหัสสินค้า (Material Code) ตรงกัน",
+    opts: [
+      "ระงับการรับเข้าชั่วคราวและประสานงานกับฝ่ายจัดซื้อเพื่อยืนยันความถูกต้องของรหัสและชื่อสินค้าก่อนบันทึก",
+      "กดรับเข้าทันทีเพราะรหัสสินค้าตรงกันถือว่าใช้ได้แล้ว",
+      "เปลี่ยนชื่อสินค้าในระบบของบริษัทตามบิลส่งของทันที",
+      "ขีดฆ่าชื่อสินค้าในบิลทิ้งแล้วเขียนชื่อในระบบลงไปแทนโดยไม่แจ้งใคร"
+    ]
+  },
+  {
+    q: "ในการตรวจสอบใบชั่งน้ำหนักต้นทาง สิ่งใดที่คุณควรสังเกตเพื่อป้องกันการทุจริตหรือความผิดพลาดของข้อมูลน้ำหนัก",
+    opts: [
+      "ตราประทับหรือลายมือชื่อของผู้ชั่งต้นทาง เวลาเข้า-ออกที่สมเหตุสมผล และรอยแก้ไขตัวเลขบนใบชั่ง",
+      "สีของกระดาษที่พิมพ์ใบชั่งน้ำหนัก",
+      "ยี่ห้อของรถบรรทุกที่นำมาส่งสินค้า",
+      "เบอร์โทรศัพท์ของคนขับรถบรรทุก"
+    ]
+  },
+  {
+    q: "คำว่า '3-Way Matching' ในกระบวนการตรวจบิลส่งของและการรับวัตถุเข้าระบบ หมายถึงการจับคู่ตรวจสอบระหว่างเอกสารใดบ้าง",
+    opts: [
+      "ใบสั่งซื้อ (PO), บิลส่งของ/ใบกำกับภาษี (Invoice/Delivery Bill), และใบรับของในระบบ (Goods Receipt)",
+      "ใบชั่งน้ำหนัก, ใบขับขี่คนขับรถ, และทะเบียนบ้าน",
+      "รหัสแผนก, รหัสที่ตั้ง, และรหัสพนักงาน",
+      "บิลส่งของฉบับจริง, ฉบับสำเนาที่ 1, และฉบับสำเนาที่ 2"
+    ]
+  },
+  {
+    q: "หลังจากทำการบันทึกรับวัตถุเข้าระบบสำเร็จแล้ว (Post Goods Receipt) พนักงานควรทำอย่างไรกับเอกสารบิลส่งของและใบชั่งน้ำหนัก",
+    opts: [
+      "จดเลขที่เอกสารรับเข้า (GR Number) ลงบนเอกสาร นำไปแนบร่วมกัน และส่งต่อให้ฝ่ายบัญชีเพื่อดำเนินการตั้งหนี้/จ่ายเงิน",
+      "คืนเอกสารทั้งหมดให้คนขับรถนำกลับไป",
+      "ทำลายเอกสารทิ้งทันทีเพราะข้อมูลอยู่ในระบบแล้ว",
+      "เก็บไว้ที่โต๊ะส่วนตัวของพนักงานโดยไม่บอกใคร"
+    ]
+  }
+];
+
+const LETTERS = ["ก","ข","ค","ง"];
+const questionsEl = document.getElementById('questions');
+const answers = new Array(QUESTIONS.length).fill(null);
+
+QUESTIONS.forEach((item, qi) => {
+  const card = document.createElement('div');
+  card.className = 'q-card';
+  card.id = 'qcard-' + qi;
+
+  const head = document.createElement('div');
+  head.className = 'q-head';
+  head.innerHTML = `<span class="q-num">${qi+1}</span><span>${item.q}</span>`;
+  card.appendChild(head);
+
+  const optsWrap = document.createElement('div');
+  optsWrap.className = 'options';
+
+  item.opts.forEach((optText, oi) => {
+    const label = document.createElement('label');
+    label.className = 'opt';
+    label.innerHTML = `
+      <input type="radio" name="q${qi}" value="${LETTERS[oi]}">
+      <span>${LETTERS[oi]}. ${optText}</span>
+    `;
+    label.querySelector('input').addEventListener('change', () => {
+      answers[qi] = LETTERS[oi];
+      [...optsWrap.children].forEach(o => o.classList.remove('checked'));
+      label.classList.add('checked');
+      card.classList.remove('missing');
+      updateProgress();
+    });
+    optsWrap.appendChild(label);
+  });
+
+  card.appendChild(optsWrap);
+  questionsEl.appendChild(card);
+});
+
+function updateProgress(){
+  const answered = answers.filter(a => a !== null).length;
+  document.getElementById('progressFill').style.width = (answered / QUESTIONS.length * 100) + '%';
+  document.getElementById('progressLabel').textContent = `ตอบแล้ว ${answered} / ${QUESTIONS.length} ข้อ`;
+}
+
+document.getElementById('submitBtn').addEventListener('click', async () => {
+  const nameEl = document.getElementById('empName');
+  const deptEl = document.getElementById('empDept');
+  const errorBanner = document.getElementById('errorBanner');
+
+  let missingIdx = [];
+  answers.forEach((a, i) => { if (a === null) missingIdx.push(i); });
+
+  if (!nameEl.value.trim() || !deptEl.value.trim() || missingIdx.length > 0) {
+    errorBanner.style.display = 'block';
+    missingIdx.forEach(i => document.getElementById('qcard-' + i).classList.add('missing'));
+    if (missingIdx.length > 0) {
+      document.getElementById('qcard-' + missingIdx[0]).scrollIntoView({behavior:'smooth', block:'center'});
+    } else {
+      nameEl.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+    return;
+  }
+  errorBanner.style.display = 'none';
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'กำลังส่ง...';
+
+  const payload = {
+    name: nameEl.value.trim(),
+    department: deptEl.value.trim(),
+    answers: answers,
+    timestamp: new Date().toISOString()
+  };
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' }, // ป้องกัน CORS preflight ตามแพทเทิร์นเดิม
+      body: JSON.stringify(payload)
+    });
+    document.getElementById('formView').style.display = 'none';
+    document.getElementById('doneView').style.display = 'block';
+    window.scrollTo({top:0, behavior:'smooth'});
+  } catch (err) {
+    errorBanner.textContent = 'ส่งคำตอบไม่สำเร็จ กรุณาตรวจสอบการเชื่อมต่อแล้วลองใหม่อีกครั้ง';
+    errorBanner.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'ส่งคำตอบ';
+  }
+});
+</script>
+</body>
+</html>
